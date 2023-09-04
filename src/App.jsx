@@ -1,32 +1,33 @@
 import { useState } from "react";
 import axios from "axios";
+import InputPage from "./InputPage";
 
 function App() {
-    const [titleText, setTitleText] = useState("");
-    const [taxText, setTaxText] = useState("");
-    const [contractText, setContractText] = useState("");
-    const [mortgageText, setMortgageText] = useState("");
+    // const [titleText, setTitleText] = useState("");
+    // const [taxText, setTaxText] = useState("");
+    // const [contractText, setContractText] = useState("");
+    // const [mortgageText, setMortgageText] = useState("");
 
-    const handleFileChange = async (e, setText) => {
-        const formData = new FormData();
-        formData.append("pdfFile", e.target.files[0]);
+    // const handleFileChange = async (e, setText) => {
+    //     const formData = new FormData();
+    //     formData.append("pdfFile", e.target.files[0]);
 
-        try {
-            const response = await axios.post("http://localhost:3000/extract-text", formData);
+    //     try {
+    //         const response = await axios.post("https://law-firm-backend-ju32.onrender.com/extract-text", formData);
 
-            if (response.status === 200) {
-                setText(response.data.text);
-            } else {
-                console.error("Failed to extract text from PDF.");
-            }
-        } catch (error) {
-            console.error("An error occurred:", error);
-        }
-    };
+    //         if (response.status === 200) {
+    //             setText(response.data.text);
+    //         } else {
+    //             console.error("Failed to extract text from PDF.");
+    //         }
+    //     } catch (error) {
+    //         console.error("An error occurred:", error);
+    //     }
+    // };
 
     return (
         <>
-            <h1>Sale File</h1>
+            {/* <h1 className="text-red-700">Sale File</h1>
             <form>
                 <div>
                     <label>Title Document:</label>
@@ -79,7 +80,8 @@ function App() {
                     <h3>Mortgage Document:</h3>
                     <p>{mortgageText}</p>
                 </div>
-            </div>
+            </div> */}
+            <InputPage/>
         </>
     );
 }
