@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
-import InputPage from "./InputPage";
+import InputPage from "./pages/InputPage";
+import SelectFile from "./pages/SelectFile";
 
 function App() {
     // const [titleText, setTitleText] = useState("");
@@ -81,7 +82,8 @@ function App() {
                     <p>{mortgageText}</p>
                 </div>
             </div> */}
-            <InputPage/>
+            <SelectFile/>
+          
         </>
     );
 }
