@@ -7,7 +7,7 @@ import InputPage from "./pages/InputPage.jsx";
 import DocumentPage from "./pages/DocumentPage.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+  
     <Router>
       <Routes>
         <Route path="/" element={<App />} />
@@ -15,5 +15,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/document" element={<DocumentPage />} />
       </Routes>
     </Router>
-  </React.StrictMode>
+  
 );
