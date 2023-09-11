@@ -7,18 +7,35 @@ const InputPage = () => {
   const handleNavigation = async () => {
     // Create FormData object to send files
     const formData = new FormData();
-    formData.append("title", document.querySelector('input[type="file"][name="title"]').files[0]);
-    formData.append("tax", document.querySelector('input[type="file"][name="tax"]').files[0]);
-    formData.append("contract", document.querySelector('input[type="file"][name="contract"]').files[0]);
-    formData.append("mortgage", document.querySelector('input[type="file"][name="mortgage"]').files[0]);
+    formData.append(
+      "title",
+      document.querySelector('input[type="file"][name="title"]').files[0]
+    );
+    formData.append(
+      "tax",
+      document.querySelector('input[type="file"][name="tax"]').files[0]
+    );
+    formData.append(
+      "contract",
+      document.querySelector('input[type="file"][name="contract"]').files[0]
+    );
+    formData.append(
+      "mortgage",
+      document.querySelector('input[type="file"][name="mortgage"]').files[0]
+    );
 
     try {
       // Send POST request to the API
-      await axios.post("https://5sx3zskz1e.execute-api.us-east-1.amazonaws.com/dev/api/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data; boundary=<calculated when request is sent>", // Set the content type to multipart/form-data
-        },
-      });
+      await axios.post(
+        "https://5sx3zskz1e.execute-api.us-east-1.amazonaws.com/dev/api/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type":
+              "multipart/form-data; boundary=<calculated when request is sent>", // Set the content type to multipart/form-data
+          },
+        }
+      );
 
       // After successful upload, navigate to "/document"
       navigate("/document");
@@ -42,13 +59,10 @@ const InputPage = () => {
           </p>
         </div>
         <div className="flex flex-wrap">
-        
-  <input type="file" name="title" />
-  <input type="file" name="tax" />
-  <input type="file" name="contract" />
-  <input type="file" name="mortgage" />
-
-
+          <input type="file" name="title" />
+          <input type="file" name="tax" />
+          <input type="file" name="contract" />
+          <input type="file" name="mortgage" />
         </div>
         <button
           onClick={handleNavigation}
