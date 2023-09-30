@@ -1,9 +1,10 @@
-import SelectFile from "./pages/SelectFile";
+import InputPage from "./pages/InputPage";
+
 
 function App() {
   return (
     <>
-      <SelectFile />
+      <InputPage/>
     </>
   );
 }

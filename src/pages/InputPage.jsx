@@ -1,46 +1,50 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import axios from "axios"; // Import Axios
 
 const InputPage = () => {
-  const navigate = useNavigate();
+  const [title, setTitle] = useState(null);
+  const [tax, setTax] = useState(null);
+  const [contract, setContract] = useState(null);
+  const [letter, setLetter] = useState(null);
 
-  const handleNavigation = async () => {
-    // Create FormData object to send files
-    const formData = new FormData();
-    formData.append(
-      "title",
-      document.querySelector('input[type="file"][name="title"]').files[0]
-    );
-    formData.append(
-      "tax",
-      document.querySelector('input[type="file"][name="tax"]').files[0]
-    );
-    formData.append(
-      "contract",
-      document.querySelector('input[type="file"][name="contract"]').files[0]
-    );
-    formData.append(
-      "mortgage",
-      document.querySelector('input[type="file"][name="mortgage"]').files[0]
-    );
+  const handleFile = (event, fileType) => {
+    const file = event.target.files[0];
+    if (fileType === "title") setTitle(file);
+    if (fileType === "tax") setTax(file);
+    if (fileType === "contract") setContract(file);
+    if (fileType === "letter") setLetter(file);
+  };
 
+  useEffect(() => {
+    console.log(title);
+    console.log(tax);
+    console.log(contract);
+    console.log(letter);
+  }, [title, tax, contract, letter]);
+
+  const uploadDocs = async () => {
     try {
-      // Send POST request to the API
-      await axios.post(
-        "https://5sx3zskz1e.execute-api.us-east-1.amazonaws.com/dev/api/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type":
-              "multipart/form-data; boundary=<calculated when request is sent>", // Set the content type to multipart/form-data
-          },
-        }
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("tax", tax);
+      formData.append("contract", contract);
+      formData.append("letter", letter);
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Origin': 'http://127.0.0.1:5173', // Replace with your frontend origin
+        },
+      };
+  
+
+      const response = await axios.post(
+        "https://5sx3zskz1e.execute-api.us-east-1.amazonaws.com/dev/api/createJob",
+        formData.append("title", title), config
       );
 
-      // After successful upload, navigate to "/document"
-      navigate("/document");
+      console.log("Response:", response.data); // Log the response data
     } catch (error) {
-      console.error("Error uploading files:", error);
+      console.error("Error:", error);
     }
   };
 
@@ -55,17 +59,37 @@ const InputPage = () => {
             Please Upload your documents
           </h1>
           <p className="lg:w-2/3 mx-auto leading-relaxed text-base">
-            Upload your title, tax, contract and mortgage instructions
+            Upload your title, tax, contract, and mortgage instructions
           </p>
         </div>
         <div className="flex flex-wrap">
-          <input type="file" name="title" />
-          <input type="file" name="tax" />
-          <input type="file" name="contract" />
-          <input type="file" name="mortgage" />
+          <label htmlFor="title">Title</label>
+          <input
+            type="file"
+            onChange={(e) => handleFile(e, "title")}
+            name="title"
+          />
+          <label htmlFor="tax">Tax</label>
+          <input
+            type="file"
+            onChange={(e) => handleFile(e, "tax")}
+            name="tax"
+          />
+          <label htmlFor="contract">Contract</label>
+          <input
+            type="file"
+            onChange={(e) => handleFile(e, "contract")}
+            name="contract"
+          />
+          <label htmlFor="letter">Conveyancing Letter</label>
+          <input
+            type="file"
+            onChange={(e) => handleFile(e, "letter")}
+            name="letter"
+          />
         </div>
         <button
-          onClick={handleNavigation}
+          onClick={uploadDocs} // Call uploadDocs when the button is clicked
           className="flex mx-auto mt-16 text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg"
         >
           Derive Document
