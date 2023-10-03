@@ -6,6 +6,7 @@ const InputPage = () => {
   const [tax, setTax] = useState(null);
   const [contract, setContract] = useState(null);
   const [letter, setLetter] = useState(null);
+  const [loader, setLoader] = useState(false);
 
   const handleFile = (event, fileType) => {
     const file = event.target.files[0];
@@ -23,27 +24,25 @@ const InputPage = () => {
   }, [title, tax, contract, letter]);
 
   const uploadDocs = async () => {
+    setLoader(true)
     try {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("tax", tax);
       formData.append("contract", contract);
       formData.append("letter", letter);
-      const config = {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Origin': 'http://127.0.0.1:5173', // Replace with your frontend origin
-        },
-      };
-  
 
       const response = await axios.post(
         "https://5sx3zskz1e.execute-api.us-east-1.amazonaws.com/dev/api/createJob",
-        formData.append("title", title), config
+        formData
       );
+     
+        setLoader(false)
+      
 
       console.log("Response:", response.data); // Log the response data
     } catch (error) {
+      setLoader(false)
       console.error("Error:", error);
     }
   };
@@ -88,12 +87,20 @@ const InputPage = () => {
             name="letter"
           />
         </div>
-        <button
-          onClick={uploadDocs} // Call uploadDocs when the button is clicked
-          className="flex mx-auto mt-16 text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg"
-        >
-          Derive Document
-        </button>
+        {loader ? (
+          <button
+            className="flex mx-auto mt-16 text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+          >
+            Please wait
+          </button>
+        ) : (
+          <button
+            onClick={uploadDocs} // Call uploadDocs when the button is clicked
+            className="flex mx-auto mt-16 text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+          >
+            Derive Document
+          </button>
+        )}
       </div>
     </section>
   );
