@@ -3,7 +3,7 @@ import axios from "axios"; // Import Axios
 import timer from '../../config.json'
 import SelectComponent from "../components/SelectComponent";
 import Dealform from "../components/Dealform";
-import { db } from '../models/db';
+import { db, updateDb } from '../models/db';
 
 const InputPage = () => {
   const [title, setTitle] = useState(null);
@@ -11,7 +11,7 @@ const InputPage = () => {
   const [contract, setContract] = useState(null);
   const [letter, setLetter] = useState(null);
   const [loader, setLoader] = useState(false);
-  const [jobId, setJobId] = useState('1696769593369-311394879')
+  const [jobId, setJobId] = useState('')
   const [file, setFile] = useState('')
   const [no, setFileno] = useState('')
   const [formData, setFormdata] = useState(null)
@@ -50,33 +50,29 @@ const InputPage = () => {
         },
       };
      
-      // axios.post('https://5sx3zskz1e.execute-api.us-east-1.amazonaws.com/dev/api/createJob', formdata, config).then((response) => {
-      //   console.log(response.data.jobId);
-      //   if(response.data.jobId)
-      //     setJobId(response?.data?.jobId)
-      //     let status = 'in-progress'
-      //     db.dealItems.add({ jobId,no, file,status})
-      //     interval = setInterval(function () {
-      //       getJobData()
-      //       console.log("inside the interval")
-      //       intervalCount++
-      //     }, timer.timerTime);
-      //     console.log(timer.timerTime)
-      //     var data = downloadBase64File('application/msword',response.data,'deal.doc')
-      //   // interval = setInterval(function () {
-      //   //   getJobData()
-      //   //   console.log("inside the interval")
-      //   // }, timer.timerTime);
-      // });
-      let status = 'in-progress'
-      db.dealItems.add({ jobId,no, file,status})
-      interval = setInterval(function () {
-        getJobData()
-        console.log("inside the interval")
-        intervalCount++
-      }, timer.timerTime);
-      console.log(timer.timerTime)
-      console.log("file",file, no)
+      axios.post('https://5sx3zskz1e.execute-api.us-east-1.amazonaws.com/dev/api/createJob', formdata, config).then((response) => {
+        console.log("c]jobId",response.data.jobId);
+        if(response.data.jobId)
+          setJobId(response?.data?.jobId)
+          let status = 'in-progress'
+          let jobId = response?.data?.jobId
+          db.dealItems.add({ jobId,no, file,status})
+          interval = setInterval(function () {
+            getJobData(response?.data?.jobId)
+            console.log("inside the interval")
+            intervalCount++
+          }, timer.timerTime);
+          console.log(timer.timerTime)
+      });
+      // let status = 'in-progress'
+      // db.dealItems.add({ jobId,no, file,status})
+      // interval = setInterval(function () {
+      //   getJobData()
+      //   console.log("inside the interval")
+      //   intervalCount++
+      // }, timer.timerTime);
+      // console.log(timer.timerTime)
+      // console.log("file",file, no)
     } catch (error) {
       setLoader(false)
       console.error("Error:", error);
@@ -92,9 +88,9 @@ const InputPage = () => {
     downloadLink.click();
 }
 
- async function getJobData() {
+ async function getJobData(_jobId) {
   let data = {
-    "jobId": jobId
+    "jobId": _jobId
   }
   const config = {
     headers: {
@@ -112,6 +108,8 @@ const InputPage = () => {
       setLoader(false)
       var data = downloadBase64File('application/msword',response.data.data,'deal.doc')
       clearInterval(interval);
+      /** updating the data */
+      updateDb(_jobId, response.data.data)
       alert("Process is completed, downloading document!")
     } else {
       console.log("in progress")

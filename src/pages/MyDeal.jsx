@@ -45,9 +45,18 @@ export default function MyDeal() {
     console.log(all,'all')
     setDeal(all)
   }
-  const downloadDoc = () => {
-
+  const downloadDoc = (data) => {
+    var data = downloadBase64File('application/msword',data,'deal.doc')
   }
+
+  function downloadBase64File(contentType, base64Data, fileName) {
+    const linkSource = `data:${contentType};base64,${base64Data}`;
+    const downloadLink = document.createElement("a");
+    downloadLink.href = linkSource;
+    downloadLink.download = fileName;
+    downloadLink.click();
+}
+
   return (
     <TableContainer className='m-6' >
       <Table sx={{ minWidth: 700 }} aria-label="customized table">
@@ -64,22 +73,35 @@ export default function MyDeal() {
           {
             deal && deal.length>0 ?
               deal.map((row) => (
-                <StyledTableRow key={row.name}>
+                <StyledTableRow key={row.id}>
                   <StyledTableCell component="th" scope="row">
                     {row.jobId}
                   </StyledTableCell>
-                  <StyledTableCell align="right">{row.no}</StyledTableCell>
-                  <StyledTableCell align="right">{row.file}</StyledTableCell>
-                  <StyledTableCell align="right">{row.status}</StyledTableCell>
-                  <StyledTableCell align="right"> <button
-                      onClick={downloadDoc} // Call uploadDocs when the button is clicked
-                      className="flex mx-auto mt-1 px-1  text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-xs"
-                    >
-                     Download
-                    </button></StyledTableCell>
+                  <StyledTableCell key={row.id} align="right">{row.no}</StyledTableCell>
+                  <StyledTableCell key={row.id} align="right">{row.file}</StyledTableCell>
+                  <StyledTableCell key={row.id} align="right">{row.status}</StyledTableCell>
+                  <StyledTableCell key={row.id} align="right"> 
+                  {
+                      row.fileData?
+                      <button
+                        onClick={()=>  row.fileData? downloadDoc(row.fileData): null} // Call uploadDocs when the button is clicked
+                        className="flex mx-auto mt-1 px-1  text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-xs"
+                      >
+                        Download
+                      </button>
+                      :
+                      <button
+                        className="flex mx-auto mt-1 px-1  text-white bg-gray-300 border-0 py-2 px-8 focus:outline-none hover:bg-gray-50-600 rounded text-xs"
+                      >
+                        Download
+                      </button>
+                      }
+                    </StyledTableCell>
                 </StyledTableRow>
               ))
-            : null}
+            : <div role="status">
+               <p className='text-lg mt-2'>Data not found.</p>
+          </div>}
         </TableBody>
       </Table>
     </TableContainer>

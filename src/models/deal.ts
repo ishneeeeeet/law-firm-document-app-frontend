@@ -4,5 +4,6 @@ export interface Deal {
     dealtype: string;
     status:string,
     file?: string;
+    fileData?:string;
   }
   
