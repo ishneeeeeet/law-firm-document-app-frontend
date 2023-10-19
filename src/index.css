@@ -10,3 +10,24 @@ html {
 .css-rorn0c-MuiTableContainer-root {
     width: auto !important; 
 }
+
+
+.headerSh {
+    box-shadow: 0 2px 3px rgba(52, 58, 64, 0.06) !important
+}
+
+
+.btn-sec {
+    background-color: #f5f6f8 !important;
+    background-color: var(--bs-light) !important;
+    border-color: #f5f6f8 !important;
+    border-color: var(--bs-light) !important;
+    color: #495057 !important;
+    color: var(--bs-body-color) !important;
+    margin-right: 10px !important;
+}
+
+.close-btn {
+    background-color: #f5f6f8 !important;
+    padding: 10px;
+}

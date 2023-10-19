@@ -1,15 +1,22 @@
 import { useEffect, useState } from "react";
 import axios from "axios"; // Import Axios
 import timer from '../../config.json'
-import SelectComponent from "../components/SelectComponent";
 import Dealform from "../components/Dealform";
 import { db, updateDb } from '../models/db';
+import Breadcrumbs from "../components/Breadcrumb";
+import { Col,Container, Form, Input, Label, Row, Card, CardHeader, CardBody, Button } from "reactstrap";
+import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+import { eventService } from "../event";
+
 
 const InputPage = () => {
+  const navigate = useNavigate();
   const [title, setTitle] = useState(null);
   const [tax, setTax] = useState(null);
   const [contract, setContract] = useState(null);
   const [letter, setLetter] = useState(null);
+  const [template, setTemplate] = useState(null);
   const [loader, setLoader] = useState(false);
   const [jobId, setJobId] = useState('')
   const [file, setFile] = useState('')
@@ -23,6 +30,7 @@ const InputPage = () => {
     if (fileType === "tax") setTax(file);
     if (fileType === "contract") setContract(file);
     if (fileType === "letter") setLetter(file);
+    if (fileType === "template") setTemplate(file);
   };
 
   useEffect(() => {
@@ -34,6 +42,7 @@ const InputPage = () => {
 
   let interval;
   let intervalCount = 0;
+
   const uploadDocs = async () => {
     setLoader(true)
     try {
@@ -44,6 +53,7 @@ const InputPage = () => {
       formdata.append("mortgage", letter);
       formdata.append("fileno", no);
       formdata.append("dealtype",file)
+      // formdata.append("template",template)
       const config = {
         headers: {
           'content-type': 'multipart/form-data',
@@ -51,28 +61,30 @@ const InputPage = () => {
       };
      
       axios.post('https://5sx3zskz1e.execute-api.us-east-1.amazonaws.com/dev/api/createJob', formdata, config).then((response) => {
-        console.log("c]jobId",response.data.jobId);
-        if(response.data.jobId)
-          setJobId(response?.data?.jobId)
+        console.log("c]jobId",response);
+        if(response.jobId)
+          setJobId(response?.jobId)
+          navigate("/Mydeal")
           let status = 'in-progress'
-          let jobId = response?.data?.jobId
+          let jobId = response?.jobId
           db.dealItems.add({ jobId,no, file,status})
           interval = setInterval(function () {
-            getJobData(response?.data?.jobId)
+            getJobData(response?.jobId)
             console.log("inside the interval")
             intervalCount++
           }, timer.timerTime);
           console.log(timer.timerTime)
       });
+      //   navigate("/Mydeal")
       // let status = 'in-progress'
       // db.dealItems.add({ jobId,no, file,status})
       // interval = setInterval(function () {
-      //   getJobData()
+      //   getJobData(jobId)
       //   console.log("inside the interval")
       //   intervalCount++
       // }, timer.timerTime);
       // console.log(timer.timerTime)
-      // console.log("file",file, no)
+      console.log("file",file, no)
     } catch (error) {
       setLoader(false)
       console.error("Error:", error);
@@ -80,13 +92,7 @@ const InputPage = () => {
     }
   };
 
-  function downloadBase64File(contentType, base64Data, fileName) {
-    const linkSource = `data:${contentType};base64,${base64Data}`;
-    const downloadLink = document.createElement("a");
-    downloadLink.href = linkSource;
-    downloadLink.download = fileName;
-    downloadLink.click();
-}
+
 
  async function getJobData(_jobId) {
   let data = {
@@ -101,16 +107,19 @@ const InputPage = () => {
   console.log(data)
   axios.post('https://5sx3zskz1e.execute-api.us-east-1.amazonaws.com/dev/api/getResults',
   data, config).then((response) => {
-    console.log(response.data);
+    console.log(response);
     // clearInterval(interval);
-    if(response?.data?.data) {
-      setFormdata(response?.data?.parameters)
+    if(response?.data) {
+      setFormdata(response?.parameters)
       setLoader(false)
-      var data = downloadBase64File('application/msword',response.data.data,'deal.doc')
       clearInterval(interval);
       /** updating the data */
-      updateDb(_jobId, response.data.data)
-      alert("Process is completed, downloading document!")
+      updateDb(_jobId, response.data)
+      let msg = {
+        response, jobId: _jobId
+      }
+      eventService.sendEvent(msg);
+      // alert("Process is completed, downloading document!")
     } else {
       console.log("in progress")
       if(intervalCount == timer?.intervalCount) {
@@ -128,101 +137,126 @@ const InputPage = () => {
 };
 
 function handleChange(event) {
+  console.log(event.target.value,'value')
   setFileno(event?.target?.value)
 }
 
+const handleDealChange = (e) => {
+  console.log(e.target.value)
+  e.preventDefault();
+  setFile(e.target.value)
+};
+
   return (
-    <section className="text-gray-600 body-font">
-      <h1 class="mt-10 mb-4 text-indigo-500 center text-4xl flex items-center justify-center font-extrabold leading-none tracking-tight text-gray-900 md:text-2xl lg:text-5xl">Upload</h1>
-      <p class=" text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 flex items-center justify-center dark:text-gray-400">Please Upload your documents.</p>
-      <p class="text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 flex items-center justify-center dark:text-gray-400">Upload your title, tax, contract, and mortgage instructions.</p>
-      <div class="flex justify-center mt-10 px-8">
-       <form class="max-w-2xl">
-       <div class="flex flex-wrap border shadow rounded-lg p-3 bg-white">
-       
-          <h2 class="text-xl text-gray-600 dark:text-gray-300 pb-2">Upload Documents</h2>
-          <div class="flex flex-col gap-2 w-full border-gray-400">
-          <div className="flex flex-wrap -mx-3 mb-6">
-          <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-          <label class="text-gray-600 dark:text-gray-400" for="grid-first-name">
-                   Deal Type
-            </label>
-            <SelectComponent fileChange={changeEvent} options={["Sale", "Purchase", "Refinance"]} />
-            </div>
-            <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                <label class="text-gray-600 dark:text-gray-400" for="grid-first-name">
-                   File number
-                </label>
-                <input onChange={(data)=> handleChange(data, 'bankAddress')} value={no} class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow" id="fileno" type="text" placeholder=" "/>
-                {/* <p class="text-red-500 text-xs italic">Please fill out this field.</p> */}
-              </div>
-          </div>
-            <div>
-                <label class="text-gray-600 dark:text-gray-400">Title
-                </label>
-                <input
-                  class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow"
-                  type="file"
-                  onChange={(e) => handleFile(e, "title")}
-                  name="title"
-                />
-           </div>
-          <div>
-              <label class="text-gray-600 dark:text-gray-400">Tax</label>
-              <input
-                class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow"
-                type="file"
-                onChange={(e) => handleFile(e, "tax")}
-                name="tax"
-              />
-          </div>
-          <div>
-              <label class="text-gray-600 dark:text-gray-400">Contract</label>
-              <input
-                class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow"
-                type="file"
-                onChange={(e) => handleFile(e, "contract")}
-                name="contract"
-              />
-          </div>
-          <div>
-              <label class="text-gray-600 dark:text-gray-400">Conveyancing Letter</label>
-              <input
-                class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow"
-                type="file"
-                onChange={(e) => handleFile(e, "letter")}
-                name="contract"
-              />
-          </div>
-       </div>
-       </div>
-       </form>
-       </div>
-        {loader ? (
-          <button
-            className="flex mx-auto mt-10 px-2 text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg"
-          >
-            Please wait
-          </button>
-        ) : (
-          <button
-            onClick={uploadDocs} // Call uploadDocs when the button is clicked
-            className="flex mx-auto mt-10 px-2 text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg"
-          >
-            Derive Document
-          </button>
-        )}
-        {
-           formData!== null ? (
-            <div class="flex justify-center mt-10 px-8 mb-4">
-               <Dealform jobId={jobId} data={formData}/>
-               <br/>
-               <br/>
-            </div>
-          ) : null
+    <div className="page-content">
+    <Container fluid>
+    {/* Render Breadcrumbs */}
+    <Breadcrumbs title="Your title, tax, contract, and mortgage instructions" breadcrumbItem="Upload Documents" />
+
+    <Row>
+      <Col xs={12}>
+        {/* import TextualInputs */}
+        <Card>
+                <CardHeader className="justify-content-between d-flex align-items-center">
+                    {/* <h4 className="card-title">Fill all the fileds</h4> */}
+                    <Link to="//reactstrap.github.io/components/form/" target="_blank" rel="noreferrer" className="btn btn-sm btn-soft-secondary">Fill all the fileds <i className="mdi mdi-arrow-right align-middle"></i></Link>
+                </CardHeader>
+                <CardBody>
+                    <Row>
+                        <Col xl={6}>
+                            <div>
+                                <Row className="mb-3">
+                                    <Label className="col-md-2 col-form-label"> Deal Type</Label>
+                                    <Col md={10}>
+                                        <Input type="select" onChange={handleDealChange} className="form-select" defaultValue="">
+                                            <option value="">Select</option>
+                                            <option value="Sales">Sales</option>
+                                            <option value="Purchase">Purchase</option>
+                                            <option value="Refinance">Refinance</option>
+                                            <option value="Refinance">Custom</option>
+                                        </Input>
+                                    </Col>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Label htmlFor="example-text-input" className="col-md-2 col-form-label"> File number</Label>
+                                    <Col md={10}>
+                                        <Input value={no} id="fileno"  onChange={(data)=> handleChange(data, 'bankAddress')} className="form-control" type="text" defaultValue=""  />
+                                    </Col>
+                                </Row>
+                            </div>
+                        </Col>
+                        <div className="col-xl-6">
+                            <Row className="mb-3 mt-3 mt-xl-0">
+                              <Label htmlFor="formFile" className="form-label">
+                                  Title
+                                </Label>
+                               <Input name="title" className="form-control" type="file" id="title" onChange={(e) => handleFile(e, "title")}/>
+                            </Row>
+                            <Row className="mb-3 mt-3 mt-xl-0">
+                              <Label htmlFor="formFile" className="form-label">
+                                Tax
+                              </Label> 
+                              <Input className="form-control"
+                                  type="file"
+                                  onChange={(e) => handleFile(e, "tax")}
+                                  name="tax"
+                                />
+                            </Row>
+                            <Row className="mb-3">
+                              <Label htmlFor="formFile" className="form-label">
+                                  Contract
+                                </Label> 
+                              <Input className="form-control"
+                                  type="file"
+                                  onChange={(e) => handleFile(e, "contract")}
+                                  name="contract"
+                                />
+                            </Row>
+                            <Row className="mb-3">
+                              <Label htmlFor="formFile" className="form-label">
+                                 Conveyancing Letter
+                                </Label> 
+                              <Input className="form-control"
+                                  type="file"
+                                  onChange={(e) => handleFile(e, "letter")}
+                                  name="letter"
+                                />
+                            </Row>
+                             <Row className="mb-3">
+                                  <Label htmlFor="formFile" className="form-label">
+                                    Template
+                                    </Label> 
+                                  <Input className="form-control"
+                                      type="file"
+                                      onChange={(e) => handleFile(e, "template")}
+                                      name="template"
+                                    />
+                                </Row>
+                        </div>
+                        <div className="mt-4">
+                        {loader ? (
+                        <Button color="primary" type="submit" className="w-md">
+                          Please wait
+                        </Button>)
+                        :
+                        (<Button onClick={uploadDocs} color="primary" type="submit" className="w-md">
+                           Derive Document
+                        </Button>
+                        )}
+                      </div>
+                    </Row>
+                </CardBody>
+            </Card>
+      </Col>
+        {   
+          formData!== null ? (
+              <Dealform jobId={jobId} data={formData}/>
+        ) : null 
         }
-    </section>
-  );
+    </Row>
+  </Container>
+</div>
+);
 };
 
 export default InputPage;

@@ -9,24 +9,20 @@ import {
 import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
-  navlinks: {
-    marginLeft: theme.spacing(5),
-    display: "flex",
-    marginRight: theme.spacing(10)
-  },
  logo: {
     flexGrow: "1",
     cursor: "pointer",
+    color: '#555b6d',
+    fontSize: '0.9rem',
+    fontWeight:'bold'
   },
   link: {
     textDecoration: "none",
-    color: "white",
-    fontSize: "20px",
-    marginLeft: theme.spacing(20),
-    "&:hover": {
-      color: "yellow",
-      borderBottom: "1px solid white",
-    },
+    color: '#555b6d',
+    fontSize: '0.9rem',
+    fontFamily: 'inherit',
+    padding: "0.47rem 0.75rem",
+    fontWeight: '400'
   },
 }));
 
@@ -34,7 +30,7 @@ function Navbar() {
   const classes = useStyles();
 
   return (
-    <AppBar position="static">
+    <AppBar className="page-topbar" style={{backgroundColor: '#ffffff'}} >
       <CssBaseline />
        <Toolbar>
         <Typography variant="h4" className={classes.logo}>
@@ -46,6 +42,9 @@ function Navbar() {
             </Link>
             <Link to="/Mydeal" className={classes.link}>
               My Deal
+            </Link>
+            <Link to="/calender" className={classes.link}>
+              Calender
             </Link>
           </div>
       </Toolbar>
