@@ -364,6 +364,7 @@ const fakeBackend = () => {
   });
 
   mock.onGet(url.GET_CATEGORIES).reply(() => {
+    console.log("inside the ddata")
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         if (calenderDefaultCategories) {

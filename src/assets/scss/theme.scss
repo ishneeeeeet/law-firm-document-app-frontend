@@ -15,11 +15,6 @@
 // @import "custom/rtl/components-rtl";
 // @import "custom/rtl/pages-rtl";
 
-button, [type='button'], [type='reset'], [type='submit'] {
-  background-color: #038edc !important;
-  background-image: none;
-}
-
 body {
   * {
     outline: none;
@@ -440,8 +435,6 @@ span.flatpickr-weekday {
   padding: 4px;
 }
 
-
-
-.fa-chevron-right:before {
-  content: "\f054";
+.form-label {
+  padding-top: 10px;
 }

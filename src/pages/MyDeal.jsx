@@ -47,41 +47,65 @@ export default function MyDeal() {
   const [ jobId, setJobId] = React.useState({})
   const [modal_scroll, setmodal_scroll] = React.useState(false);
   const [dealData, setData] = React.useState({})
+  const [no, setFileno] = React.useState('')
+  const [month, setmonth] = React.useState('')
 
   console.log("formdata dealdata***",dealData)
   function handleChange (event, KEY) {
-      console.log(event?.target?.value, "Data")
+      console.log(event?.target?.value, "Data", KEY)
       let d = {...dealData}
       d[KEY] = event?.target?.value
       setData(d)
   }
 
   function updateDeal () {
-      let data = {
-          "jobId": jobId,
-          ...dealData
-        }
-        const config = {
-          headers: {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-          },
-        };
-        console.log(data)
-        axios.post('https://5sx3zskz1e.execute-api.us-east-1.amazonaws.com/dev/api/updateResults',
-        data, config).then((response) => {
-          console.log(response,"adter update deal");
-          if(response?.data) {
-            updateDb(jobId, response.data)
-            var data = downloadBase64File('application/msword',response.data,'deal.doc')
-            alert("Process is completed, downloading document!")
-            setmodal_scroll(false)
-            setOpenModal(false)
-          } else {
-            console.log("in progress")
-            alert("Something went wrong!")
+    try {
+      console.log(dealData, 'inside udpateddel')
+      let body = {...dealData}
+      delete body.filePaths
+        let data = {
+            "jobId": jobId,
+            ...body
           }
-        });
+          const config = {
+            headers: {
+              'Accept': 'application/json, text/plain, */*',
+              'Content-Type': 'application/json',
+            },
+          };
+          console.log(data)
+          axios.post('https://5sx3zskz1e.execute-api.us-east-1.amazonaws.com/dev/api/updateResults',
+          data, config).then((response) => {
+            console.log(response,"adter update deal");
+            if(response?.data) {
+              updateDb(jobId, response.data, response.parameters)
+              var data = downloadBase64File('application/msword',response.data,'deal.doc')
+              alert("Process is completed, downloading document!")
+              setmodal_scroll(false)
+              setOpenModal(false)
+            } else {
+              console.log("in progress")
+              setmodal_scroll(false)
+              setOpenModal(false)
+              alert("Something went wrong!")
+            }
+          })
+          .then(data => {
+              console.log("inside data")
+          })
+          .catch( error => {
+              console.log("inside eroor")
+              console.log("inside exception")
+              setmodal_scroll(false)
+              setOpenModal(false)
+              alert("Something went wrong, Please try after some time!")
+          });
+    } catch(e) {
+      console.log("inside exception")
+      setmodal_scroll(false)
+      setOpenModal(false)
+      alert("Something went wrong, Please try after some time!")
+    }
   }
 
 
@@ -91,7 +115,8 @@ export default function MyDeal() {
       console.log('Subscribed data --', data)
       setRes(data.res.response)
       setJobId(data.res.jobId)
-      setOpenModal(true)
+      // setOpenModal(true)
+      finddata()
     })
   }, [])
 
@@ -131,6 +156,22 @@ function downloadAndUpdate() {
   setmodal_scroll(true)
 }
 
+function update(data) {
+  console.log(data.params)
+  setData(data.params)
+  // setRes(data.res.response)
+  setJobId(data.jobId)
+  setmodal_scroll(true)
+}
+
+// function handleChange(event) {
+//   console.log(event.target.value,'value')
+//   setFileno(event?.target?.value)
+// }
+// function handleChangeMonth(event) {
+//   console.log(event.target.value,'value')
+//   setmonth(event?.target?.value)
+// }
   return (
     <div className="page-content">
       <Container fluid>
@@ -138,40 +179,52 @@ function downloadAndUpdate() {
             <Table sx={{ minWidth: 700 }} aria-label="customized table">
               <TableHead className='flex mx-auto mt-16 text-white  border-0 py-2 px-8 focus:outline-none  text-lg'>
                 <TableRow>
-                  <StyledTableCell align="center" className='text-black'>JobId</StyledTableCell>
-                  <StyledTableCell className='text-black' align="right">File Number</StyledTableCell>
-                  <StyledTableCell className='text-black' align="right">Deal Type</StyledTableCell>
-                  <StyledTableCell className='text-black' align="right">Status</StyledTableCell>
+                  <StyledTableCell align="center" className='text-black'>Job Id</StyledTableCell>
+                  <StyledTableCell className='text-black' align="center">File Number</StyledTableCell>
+                  <StyledTableCell className='text-black' align="center">Deal Type</StyledTableCell>
+                  <StyledTableCell className='text-black' align="center">Status</StyledTableCell>
                   <StyledTableCell className='text-black px-3 py-2' align="center">Download</StyledTableCell>
+                  <StyledTableCell className='text-black px-3 py-2' align="center">Update</StyledTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {
                   deal && deal.length>0 ?
-                    deal.map((row) => (
-                      <StyledTableRow key={row.id+new Date()}>
+                    deal.map((row, index) => (
+                      <StyledTableRow key={JSON.stringify(row.id+index)}>
                         <StyledTableCell align='center' component="th" scope="row">
                           {row.jobId}
                         </StyledTableCell>
-                        <StyledTableCell key={row.id+new Date()} align="right">{row.no}</StyledTableCell>
-                        <StyledTableCell key={row.id+new Date()} align="right">{row.file}</StyledTableCell>
-                        <StyledTableCell key={row.id+new Date()} align="right">{row.status}</StyledTableCell>
-                        <StyledTableCell key={row.id+new Date()} align="right"> 
+                        <StyledTableCell key={JSON.stringify(row.id+index)} align="center">{row.no}</StyledTableCell>
+                        <StyledTableCell key={JSON.stringify(row.id+index)} align="center">{row.file}</StyledTableCell>
+                        <StyledTableCell key={JSON.stringify(row.id+index)} align="center">{row.status}</StyledTableCell>
+                        <StyledTableCell key={JSON.stringify(row.id+index)} align="center"> 
                         {
                             row.fileData?
-                            <button
-                              onClick={()=>  row.fileData? downloadDoc(row.fileData): null} // Call uploadDocs when the button is clicked
-                              className="flex mx-auto mt-1 px-3 text-white bg-indigo-500 border-0 py-2 focus:outline-none hover:bg-indigo-600 rounded text-xs pd-im"
-                            >
-                              Download
-                            </button>
+                               // Call uploadDocs when the button is clicked
+                              <Button  onClick={()=>  row.fileData? downloadDoc(row.fileData): null} type="button" color="info">Download</Button>
                             :
-                            <button
-                              className="flex mx-auto mt-1 px-3  text-white bg-gray-300 border-0 py-2 focus:outline-none hover:bg-gray-50-600 pd-im rounded text-xs"
+                            <Button
+                              color="light"
+                              className='disabled'
                             >
                               Download
-                            </button>
+                            </Button>
                             }  
+                          </StyledTableCell>
+                          <StyledTableCell key={JSON.stringify(row.id+index)} align="center"> 
+                            {
+                              row.fileData?
+                                // Call uploadDocs when the button is clicked
+                                <Button  onClick={()=>  row.fileData? update(row): null} type="button" color="warning">Update</Button>
+                              :
+                              <Button
+                                color="light"
+                                className='disabled'
+                              >
+                                Update
+                              </Button>
+                              }  
                           </StyledTableCell>
                       </StyledTableRow>
                     ))
@@ -182,7 +235,6 @@ function downloadAndUpdate() {
             </Table>
           </TableContainer>
           <Modal
-            style={{marginTop:100}}
             isOpen={isOpen}
             toggle={() => {
               setOpenModal(!isOpen);
@@ -202,7 +254,7 @@ function downloadAndUpdate() {
                   setOpenModal(false);
                 }}
                 aria-label="Close"
-              >close</button>
+              ></button>
             </div>
             <div className="modal-body">
               <p>
@@ -228,11 +280,7 @@ function downloadAndUpdate() {
           </Modal>
 
           <Modal
-              style={{marginTop:100}}
               isOpen={modal_scroll}
-              toggle={() => {
-                tog_scroll();
-              }}
               // scrollable={true}
             >
               <div className="modal-header">
@@ -250,7 +298,7 @@ function downloadAndUpdate() {
               </div>
               <div className="modal-body">
               <form>
-                `<div class="flex flex-wrap -mx-3 mb-6 ">
+                <div class="flex flex-wrap -mx-3 mb-6 ">
                     <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                     <Label className="form-label"  for="grid-first-name">
                         Bank Address
@@ -317,6 +365,19 @@ function downloadAndUpdate() {
                         </Label>
                         <input onChange={(data)=> handleChange(data, 'purchasePrice')} value={dealData.purchasePrice} className="form-control" id="purchasePrice" type="text" placeholder="purchasePrice"/>
                     </div>
+                </div>
+
+               <div class="flex flex-wrap -mx-3 mb-6">
+                    <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                      <Label htmlFor="example-text-input" className="form-label"> File number</Label>
+                      <Input value={dealData.fileNumber} id="fileno"  onChange={(data)=> handleChange(data, 'fileNumber')} className="form-control" type="text" defaultValue=""  />
+                    </div>
+                  </div>
+               <div class="flex flex-wrap -mx-3 mb-6">
+                  <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                    <Label htmlFor="example-text-input" className="form-label"> Month</Label>
+                    <Input value={dealData.signingMonth} id="month"  onChange={(data)=> handleChange(data, 'signingMonth')} className="form-control" type="text" defaultValue=""  />
+                  </div>
                 </div>
                 {/* <div>
                     <Button onClick={(e)=> {e.preventDefault();updateDeal()}}

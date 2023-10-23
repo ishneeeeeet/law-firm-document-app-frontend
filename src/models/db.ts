@@ -29,13 +29,13 @@ export function resetDatabase() {
   });
 }
 
-export function updateDb(jobId, data) {
+export function updateDb(jobId: any, data: any, params: any) {
   db.transaction("rw", db.dealItems, async () => {
     console.log(jobId, data)
     // Mark bigfoots:
     await db.dealItems
       .where("jobId").equals(jobId)
-      .modify({"fileData": data, 'status':'completed'});
+      .modify({"fileData": data, 'status':'completed', 'params':params});
 
     // Log all bigfoots.
     // Since in transaction, and prev operation is a write-operation, the

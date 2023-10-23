@@ -31,7 +31,7 @@ const FormDeal = ({data, jobId}) => {
           data, config).then((response) => {
             console.log(response.data);
             if(response?.data?.data) {
-              updateDb(jobId, response.data.data)
+              updateDb(jobId, response.data.data, response.data.parameters)
               var data = downloadBase64File('application/msword',response.data.data,'deal.doc')
               alert("Process is completed, downloading document!")
             } else {

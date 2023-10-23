@@ -1,26 +1,27 @@
 import { useEffect, useState } from "react";
 import axios from "axios"; // Import Axios
-import timer from '../../config.json'
+import timer from '../config.json'
 import Dealform from "../components/Dealform";
 import { db, updateDb } from '../models/db';
-import Breadcrumbs from "../components/Breadcrumb";
+import Breadcrumbs from "../components/Common/Breadcrumb";
 import { Col,Container, Form, Input, Label, Row, Card, CardHeader, CardBody, Button } from "reactstrap";
 import { Link } from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
+// import { useHistory } from 'react-router-dom';
 import { eventService } from "../event";
 
 
-const InputPage = () => {
-  const navigate = useNavigate();
+const InputPage = (props) => {
+  // const navigate = useNavigate();
   const [title, setTitle] = useState(null);
   const [tax, setTax] = useState(null);
   const [contract, setContract] = useState(null);
   const [letter, setLetter] = useState(null);
   const [template, setTemplate] = useState(null);
   const [loader, setLoader] = useState(false);
-  const [jobId, setJobId] = useState('')
+  const [jobId, setJobId] = useState('1696775052611-925895156')
   const [file, setFile] = useState('')
   const [no, setFileno] = useState('')
+  const [month, setmonth] = useState('')
   const [formData, setFormdata] = useState(null)
 
   const handleFile = (event, fileType) => {
@@ -48,12 +49,13 @@ const InputPage = () => {
     try {
       var formdata = new FormData();
       formdata.append("title", title);
+      formdata.append("signingMonth", month);
       formdata.append("tax", tax);
       formdata.append("contract", contract);
       formdata.append("mortgage", letter);
-      formdata.append("fileno", no);
+      formdata.append("fileNumber", no);
       formdata.append("dealtype",file)
-      // formdata.append("template",template)
+      formdata.append("template",template)
       const config = {
         headers: {
           'content-type': 'multipart/form-data',
@@ -64,10 +66,10 @@ const InputPage = () => {
         console.log("c]jobId",response);
         if(response.jobId)
           setJobId(response?.jobId)
-          navigate("/Mydeal")
-          let status = 'in-progress'
+          let status = 'In-progress'
           let jobId = response?.jobId
           db.dealItems.add({ jobId,no, file,status})
+          props.history.push("/Mydeals")
           interval = setInterval(function () {
             getJobData(response?.jobId)
             console.log("inside the interval")
@@ -75,7 +77,7 @@ const InputPage = () => {
           }, timer.timerTime);
           console.log(timer.timerTime)
       });
-      //   navigate("/Mydeal")
+      // props.history.push("/Mydeal")
       // let status = 'in-progress'
       // db.dealItems.add({ jobId,no, file,status})
       // interval = setInterval(function () {
@@ -84,7 +86,7 @@ const InputPage = () => {
       //   intervalCount++
       // }, timer.timerTime);
       // console.log(timer.timerTime)
-      console.log("file",file, no)
+      // console.log("file",file, no)
     } catch (error) {
       setLoader(false)
       console.error("Error:", error);
@@ -114,7 +116,7 @@ const InputPage = () => {
       setLoader(false)
       clearInterval(interval);
       /** updating the data */
-      updateDb(_jobId, response.data)
+      updateDb(_jobId, response.data, response.parameters)
       let msg = {
         response, jobId: _jobId
       }
@@ -140,6 +142,10 @@ function handleChange(event) {
   console.log(event.target.value,'value')
   setFileno(event?.target?.value)
 }
+function handleChangeMonth(event) {
+  console.log(event.target.value,'value')
+  setmonth(event?.target?.value)
+}
 
 const handleDealChange = (e) => {
   console.log(e.target.value)
@@ -151,23 +157,23 @@ const handleDealChange = (e) => {
     <div className="page-content">
     <Container fluid>
     {/* Render Breadcrumbs */}
-    <Breadcrumbs title="Your title, tax, contract, and mortgage instructions" breadcrumbItem="Upload Documents" />
+    <Breadcrumbs title="Home" breadcrumbItem="Upload Documents" />
 
     <Row>
       <Col xs={12}>
         {/* import TextualInputs */}
         <Card>
                 <CardHeader className="justify-content-between d-flex align-items-center">
-                    {/* <h4 className="card-title">Fill all the fileds</h4> */}
-                    <Link to="//reactstrap.github.io/components/form/" target="_blank" rel="noreferrer" className="btn btn-sm btn-soft-secondary">Fill all the fileds <i className="mdi mdi-arrow-right align-middle"></i></Link>
+                    {/* <h4 className="card-title">Fill all the fields</h4> */}
+                    <Link to="//reactstrap.github.io/components/form/" target="_blank" rel="noreferrer" className="btn btn-sm btn-soft-secondary">Fill all the fields <i className="mdi mdi-arrow-right align-middle"></i></Link>
                 </CardHeader>
                 <CardBody>
                     <Row>
-                        <Col xl={6}>
+                        <Col xl={12}>
                             <div>
                                 <Row className="mb-3">
-                                    <Label className="col-md-2 col-form-label"> Deal Type</Label>
-                                    <Col md={10}>
+                                    <Label className="col-md-3 col-form-label"> Deal Type<span className="text-danger">*</span></Label>
+                                    <Col md={9}>
                                         <Input type="select" onChange={handleDealChange} className="form-select" defaultValue="">
                                             <option value="">Select</option>
                                             <option value="Sales">Sales</option>
@@ -178,69 +184,85 @@ const handleDealChange = (e) => {
                                     </Col>
                                 </Row>
                                 <Row className="mb-3">
-                                    <Label htmlFor="example-text-input" className="col-md-2 col-form-label"> File number</Label>
-                                    <Col md={10}>
+                                    <Label htmlFor="example-text-input" className="col-md-3 col-form-label"> File Number<span className="text-danger">*</span></Label>
+                                    <Col md={9}>
                                         <Input value={no} id="fileno"  onChange={(data)=> handleChange(data, 'bankAddress')} className="form-control" type="text" defaultValue=""  />
+                                    </Col>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Label htmlFor="example-text-input" className="col-md-3 col-form-label">Signing Month<span className="text-danger">*</span></Label>
+                                    <Col md={9}>
+                                        <Input value={month} id="month"  onChange={(data)=> handleChangeMonth(data, 'month')} className="form-control" type="text" defaultValue=""  />
                                     </Col>
                                 </Row>
                             </div>
                         </Col>
-                        <div className="col-xl-6">
-                            <Row className="mb-3 mt-3 mt-xl-0">
-                              <Label htmlFor="formFile" className="form-label">
-                                  Title
+                        <div className="col-xl-12">
+                            <Row className="mb-3">
+                              <Label htmlFor="formFile" className="col-md-3 col-form-label">
+                                  Title<span className="text-danger">*</span>
                                 </Label>
-                               <Input name="title" className="form-control" type="file" id="title" onChange={(e) => handleFile(e, "title")}/>
+                                <Col md={9}>
+                                    <Input name="title" className="form-control" type="file" id="title" onChange={(e) => handleFile(e, "title")}/>
+                                </Col>
                             </Row>
                             <Row className="mb-3 mt-3 mt-xl-0">
-                              <Label htmlFor="formFile" className="form-label">
-                                Tax
+                              <Label htmlFor="formFile" className="col-md-3 col-form-label">
+                                Tax<span className="text-danger">*</span>
                               </Label> 
-                              <Input className="form-control"
-                                  type="file"
-                                  onChange={(e) => handleFile(e, "tax")}
-                                  name="tax"
-                                />
+                              <Col md={9}> 
+                                <Input className="form-control"
+                                    type="file"
+                                    onChange={(e) => handleFile(e, "tax")}
+                                    name="tax"
+                                  />
+                              </Col>
                             </Row>
                             <Row className="mb-3">
-                              <Label htmlFor="formFile" className="form-label">
-                                  Contract
+                              <Label htmlFor="formFile" className="col-md-3 col-form-label">
+                                  Contract<span className="text-danger">*</span>
                                 </Label> 
-                              <Input className="form-control"
-                                  type="file"
-                                  onChange={(e) => handleFile(e, "contract")}
-                                  name="contract"
-                                />
+                              <Col md={9}> 
+                                <Input className="form-control"
+                                    type="file"
+                                    onChange={(e) => handleFile(e, "contract")}
+                                    name="contract"
+                                  />
+                                </Col>
                             </Row>
                             <Row className="mb-3">
-                              <Label htmlFor="formFile" className="form-label">
-                                 Conveyancing Letter
+                              <Label htmlFor="formFile" className="col-md-3 col-form-label">
+                                 Conveyancing Letter<span className="text-danger">*</span>
                                 </Label> 
-                              <Input className="form-control"
-                                  type="file"
-                                  onChange={(e) => handleFile(e, "letter")}
-                                  name="letter"
-                                />
+                              <Col md={9}> 
+                                <Input className="form-control"
+                                    type="file"
+                                    onChange={(e) => handleFile(e, "letter")}
+                                    name="letter"
+                                  />
+                              </Col>
                             </Row>
                              <Row className="mb-3">
-                                  <Label htmlFor="formFile" className="form-label">
+                                  <Label htmlFor="formFile" className="col-md-3 col-form-label">
                                     Template
                                     </Label> 
-                                  <Input className="form-control"
-                                      type="file"
-                                      onChange={(e) => handleFile(e, "template")}
-                                      name="template"
-                                    />
+                                    <Col md={9}>
+                                      <Input className="form-control"
+                                          type="file"
+                                          onChange={(e) => handleFile(e, "template")}
+                                          name="template"
+                                        />
+                                    </Col>
                                 </Row>
                         </div>
                         <div className="mt-4">
                         {loader ? (
                         <Button color="primary" type="submit" className="w-md">
-                          Please wait
+                          Please wait...
                         </Button>)
                         :
                         (<Button onClick={uploadDocs} color="primary" type="submit" className="w-md">
-                           Derive Document
+                           Submit
                         </Button>
                         )}
                       </div>

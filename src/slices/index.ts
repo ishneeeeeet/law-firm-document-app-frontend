@@ -2,6 +2,7 @@ import { combineReducers } from 'redux'
 
 import contactsReducer from './Contacts/reducer'
 
+import layoutReducer from "./Layout/reducer"
 
 // Calendar
 import calendarReducer from "./Calendar/reducer";
@@ -28,14 +29,17 @@ import profileReducer from "./Auth/Profile/reducer";
 import kanbanboardsReducer from "./Kanbanboards/reducer"
 
 // // Forget Password
+import forgetPasswordReducer from "./Auth/Forgetpwd/reducer";
 
 const rootReducer = combineReducers({
     contacts: contactsReducer,
+    Layout: layoutReducer,
     calendar: calendarReducer,
     chat: chatReducer,
     invoices: invoicesReducer,
     register: registerReducer,
     login: loginReducer,
+    forgetPassword: forgetPasswordReducer,
     projects: projectsReducer,
     profile: profileReducer,
     kanbanboards: kanbanboardsReducer,
