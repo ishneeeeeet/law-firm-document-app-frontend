@@ -12,7 +12,6 @@ const DeleteModal = ({
   onCloseClick,
 }: DeleteModalProps) => {
   return (
- <></>
     {/*<Modal isOpen={show} toggle={onCloseClick} centered={true}>
       <ModalBody className="py-3 px-5">
         <Row>
