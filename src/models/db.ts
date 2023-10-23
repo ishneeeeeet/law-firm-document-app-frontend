@@ -3,7 +3,8 @@ import { populate } from './populate';
 import { Deal } from './deal';
 
 export class DealDB extends Dexie {
-    dealItems!: Table<Deal, number>;
+    // @ts-ignore
+    dealItems: Table<Deal, number>;
     constructor() {
       super('DealDB');
       this.version(1).stores({

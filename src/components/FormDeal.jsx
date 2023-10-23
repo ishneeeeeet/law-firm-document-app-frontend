@@ -51,68 +51,68 @@ const FormDeal = ({data, jobId}) => {
 
     return(
        <form>
-            <div class="flex flex-wrap -mx-3 mb-6 ">
-                <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+            <div className="flex flex-wrap -mx-3 mb-6 ">
+                <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                 <Label className="form-label"  for="grid-first-name">
                     Bank Address
                 </Label>
                 <input onChange={(data)=> handleChange(data, 'bankAddress')} value={dealData.bankAddress} className="form-control" id="bankAddress" type="text" placeholder="Jane"/>
-                {/* <p class="text-red-500 text-xs italic">Please fill out this field.</p> */}
+                {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
                 </div>
-                <div class="w-full md:w-1/2 px-3">
+                <div className="w-full md:w-1/2 px-3">
                 <Label className="form-label"  for="grid-last-name">
                     Bank Name
                 </Label>
                 <input onChange={(data)=> handleChange(data, 'bankName')} value={dealData.bankName} className="form-control" id="bankName" type="text" placeholder="Doe"/>
                 </div>
             </div>
-            <div class="flex flex-wrap -mx-3 mb-6">
-                <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+            <div className="flex flex-wrap -mx-3 mb-6">
+                <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                 <Label className="form-label"  for="grid-first-name">
                 Buyer Names
                 </Label>
                 <input onChange={(data)=> handleChange(data, 'buyerNames')} value={dealData.buyerNames} className="form-control" id="buyerNames" type="text" placeholder="Jane"/>
-                {/* <p class="text-red-500 text-xs italic">Please fill out this field.</p> */}
+                {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
                 </div>
-                <div class="w-full md:w-1/2 px-3">
+                <div className="w-full md:w-1/2 px-3">
                 <Label className="form-label"  for="grid-last-name">
                 Closing Date
                 </Label>
                 <input onChange={(data)=> handleChange(data, 'closingDate')} value={dealData.closingDate} className="form-control" id="closingDate" type="text" placeholder="Doe"/>
                 </div>
             </div>
-            <div class="flex flex-wrap -mx-3 mb-6">
-                <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+            <div className="flex flex-wrap -mx-3 mb-6">
+                <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                 <Label className="form-label"  for="grid-first-name">
                 Legal Block
                 </Label>
                 <input onChange={(data)=> handleChange(data, 'legalBlock')} value={dealData.legalBlock} className="form-control" id="legalBlock" type="text" placeholder="legalBlock"/>
-                {/* <p class="text-red-500 text-xs italic">Please fill out this field.</p> */}
+                {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
                 </div>
-                <div class="w-full md:w-1/2 px-3">
+                <div className="w-full md:w-1/2 px-3">
                 <Label className="form-label"  for="grid-last-name">
                     Legal Lot
                 </Label>
                 <input onChange={(data)=> handleChange(data, 'legalLot')} value={dealData.legalLot} className="form-control" id="legalLot" type="text" placeholder="legalLot"/>
                 </div>
             </div>
-            <div class="flex flex-wrap -mx-3 mb-6">
-                <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+            <div className="flex flex-wrap -mx-3 mb-6">
+                <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                     <Label className="form-label"  for="grid-first-name">
                     Owners
                     </Label>
                     <input onChange={(data)=> handleChange(data, 'owners')} value={dealData.owners} className="form-control" id="owners" type="text" placeholder="Jane"/>
-                {/* <p class="text-red-500 text-xs italic">Please fill out this field.</p> */}
+                {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
                 </div>
-                <div class="w-full md:w-1/2 px-3">
+                <div className="w-full md:w-1/2 px-3">
                     <Label className="form-label"  for="grid-last-name">
                     Property Address
                     </Label>
                     <input onChange={(data)=> handleChange(data, 'propertyAddress')} value={dealData.propertyAddress} className="form-control" id="propertyAddress" type="text" placeholder="propertyAddress"/>
                 </div>
             </div>
-            <div class="flex flex-wrap -mx-3 mb-6">
-                <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+            <div className="flex flex-wrap -mx-3 mb-6">
+                <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                     <Label className="form-label"  for="grid-zip">
                     Purchase Price
                     </Label>
