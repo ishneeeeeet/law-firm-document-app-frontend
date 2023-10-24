@@ -255,11 +255,11 @@ const Calender = ({ className }: CalendarProps) => {
 
   return (
     <React.Fragment>
-      <DeleteModal
+{/*      <DeleteModal
         show={deleteModal}
         onDeleteClick={handleDeleteEvent}
         onCloseClick={() => setDeleteModal(false)}
-      />
+      /> */}
       <div className="page-content">
         <MetaTags>
           <title>Calendar | Dashonic - React Admin & Dashboard Template</title>
