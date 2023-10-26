@@ -44,13 +44,12 @@ export default function MyDeal() {
   const [deal, setDeal] = React.useState([])
   const [isOpen, setOpenModal] = React.useState(false);
   const [ res, setRes] = React.useState({})
-  const [ jobId, setJobId] = React.useState({})
+  const [ jobId, setJobId] = React.useState('')
   const [modal_scroll, setmodal_scroll] = React.useState(false);
   const [dealData, setData] = React.useState({})
   const [no, setFileno] = React.useState('')
   const [month, setmonth] = React.useState('')
 
-  console.log("formdata dealdata***",dealData)
   function handleChange (event, KEY) {
       console.log(event?.target?.value, "Data", KEY)
       let d = {...dealData}
@@ -64,8 +63,8 @@ export default function MyDeal() {
       let body = {...dealData}
       delete body.filePaths
         let data = {
-            "jobId": jobId,
-            ...body
+          ...body,
+            "jobId": jobId
           }
           const config = {
             headers: {
@@ -73,7 +72,6 @@ export default function MyDeal() {
               'Content-Type': 'application/json',
             },
           };
-          console.log(data)
           axios.post('https://5sx3zskz1e.execute-api.us-east-1.amazonaws.com/dev/api/updateResults',
           data, config).then((response) => {
             console.log(response,"adter update deal");
