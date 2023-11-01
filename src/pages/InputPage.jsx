@@ -66,7 +66,7 @@ const InputPage = (props) => {
           setJobId(response?.jobId)
         let status = 'In-progress'
         let jobId = response?.jobId
-        db.dealItems.add({ jobId, no, dealType, status })
+        db.dealItems.add({ jobId, no, file: dealType, status })
         props.history.push("/Mydeals")
         interval = setInterval(function () {
           getJobData(response?.jobId)

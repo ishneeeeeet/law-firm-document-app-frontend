@@ -1,5 +1,5 @@
 {
-    "timerTime":60000,
+    "timerTime":30000,
     "stopTimer":360000,
     "intervalCount": 6
 }
