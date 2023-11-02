@@ -46,12 +46,12 @@ const InputPage = (props) => {
     setLoader(true)
     try {
       var formdata = new FormData();
-      formdata.append("title", title);
       formdata.append("signingMonth", month);
-      formdata.append("tax", tax);
-      formdata.append("contract", contract);
-      formdata.append("conveyancing", letter);
-      if (dealType === "Purchase") formdata.append("mortgage", mortgage);
+      if (title) formdata.append("title", title);
+      if (tax) formdata.append("tax", tax);
+      if (contract) formdata.append("contract", contract);
+      if (letter) formdata.append("conveyancing", letter);
+      if (dealType === "Purchase" && mortgage) formdata.append("mortgage", mortgage);
       formdata.append("fileNumber", no);
       formdata.append("dealtype", dealType)
       formdata.append("template", template)
@@ -239,7 +239,7 @@ const InputPage = (props) => {
                           name="mortgage"
                         />
                       </Col>
-                    </Row>: <></>}
+                    </Row> : <></>}
                     <Row className="mb-3">
                       <Label htmlFor="formFile" className="col-md-3 col-form-label">
                         Template
