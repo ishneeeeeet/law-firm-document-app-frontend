@@ -40,6 +40,7 @@ import "@fullcalendar/bootstrap/main.css";
 
 //redux
 import { useSelector, useDispatch } from "react-redux";
+import { db } from "src/models/db";
 
 interface CalendarProps {
   className: string;
@@ -47,20 +48,38 @@ interface CalendarProps {
 const Calender = ({ className }: CalendarProps) => {
   const dispatch = useDispatch();
 
-  const { events, categories } = useSelector((state: any) => ({
-    events: state.calendar.events,
-    categories: state.calendar.categories,
-  }));
+  // const { events, categories } = useSelector((state: any) => {
+  //   console.log("cat == ", state.calendar.categories)
+  //   console.log("events == ", state.calendar.events)
+
+  //   return {
+  //   events: state.calendar.events,
+  //   categories: state.calendar.categories,
+  //   }
+  // });
+
+
+
+  const categories = [
+    {id: 1, title: 'Purchase', type: 'bg-success text-white', text: 'text-success'},
+    {id: 2, title: 'Sale', type: 'bg-danger text-white', text: 'text-danger'},
+    {id: 3, title: 'Refinance', type: 'bg-info text-white', text: 'text-info'},
+  ]
 
   const [modal, setModal] = useState<boolean>(false);
   const [setCalenderView, updatedCalenderView] = useState("dayGridMonth");
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [modalcategory, setModalcategory] = useState<boolean>(false);
   const [event, setEvent] = useState<any>({});
+  const [events, setEvents] = useState<any>([]);
   const [selectedDay, setSelectedDay] = useState<any>(0);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const calendarRef = useRef<any>();
+
+  useEffect(() => {
+    fetchDeals()
+  }, [])
 
   useEffect(() => {
     let external: any = document.getElementById("external-events");
@@ -73,6 +92,35 @@ const Calender = ({ className }: CalendarProps) => {
     changeView(setCalenderView);
 
   }, [dispatch]);
+
+  async function fetchDeals() {
+    const all = await db.dealItems.toArray()
+    const formattedEvents = all.reverse().map((elem) => {
+      return {
+            ...elem,
+            allDay: false,
+            className: (elem.params.dealtype === 'Purchase' ? 'bg-success' : elem.params.dealtype === 'Sale' ? 'bg-danger' : 'bg-info') + " text-white",
+            start: formatDate(elem.params.closing_date),
+            // @ts-ignore
+            title: elem.no
+      }
+    })
+    setEvents(formattedEvents)
+  }
+
+  const formatDate = (date: string) => {
+    const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER']
+       if(date && date != '' && date[0] != '{') {
+         const splittedDate = date.split(' ')
+         if(splittedDate.length > 2) {
+           let month: any = months.findIndex((elem) => elem === splittedDate[0].toUpperCase()) + 1
+           month = month.toString().length > 1 ? month : '0' + month
+           let date = splittedDate[1] 
+           let year = splittedDate[2]
+           return `${year}-${month}-${date}T09:00:00.000Z`
+         }
+       }
+  }
 
   const changeView = (view: any) => {
     const API = getApi();
@@ -159,6 +207,7 @@ const Calender = ({ className }: CalendarProps) => {
       className: event.classNames,
       category: event.classNames[0],
       event_category: event.classNames[0],
+      dealtype: event.extendedProps.params.dealtype
     });
     setIsEdit(true);
     toggle();
@@ -169,22 +218,25 @@ const Calender = ({ className }: CalendarProps) => {
    */
   const handleValidEventSubmit = (values: any) => {
     if (isEdit) {
-      const updateEvent1 = {
+      const updatedEvent = {
         id: event.id,
         title: values.title,
-        className: values.category + " text-white",
+        className: (values.params.dealtype === 'Purchase' ? 'bg-success' : values.params.dealtype === 'Sale' ? 'bg-danger' : 'bg-info' )+ " text-white",
         start: event.start,
       };
-      // update event
-      dispatch(updateEvent(updateEvent1));
+      const allEvents = [...events]
+     const foundIndex = allEvents.findIndex((elem) => elem.id === updatedEvent.id)
+      if(foundIndex != -1) allEvents[foundIndex] = updateEvent
+      setEvents(allEvents)
     } else {
       const newEvent = {
         id: Math.floor(Math.random() * 100),
-        title: values["title"],
-        start: selectedDay ? selectedDay.date : new Date(),
-        className: values.category + " text-white",
+        title: values.title,
+        start: event.start ?  event.start + 'T09:00:00.000Z' : new Date(),
+        className: (values.dealtype === 'Purchase' ? 'bg-success' : values.dealtype === 'Sale' ? 'bg-danger' : 'bg-info' )+ " text-white",
       };
-      dispatch(addNewEvent(newEvent));
+      setEvents([...events, newEvent])
+      // dispatch(addNewEvent(newEvent));
     }
     setSelectedDay(null);
     toggle();
@@ -262,7 +314,7 @@ const Calender = ({ className }: CalendarProps) => {
       /> */}
       <div className="page-content">
         <MetaTags>
-          <title>Calendar | Dashonic - React Admin & Dashboard Template</title>
+          <title>Calendar | John Dhillon Law</title>
         </MetaTags>
         <Container fluid={true}>
           {/* Render Breadcrumb */}
@@ -277,7 +329,7 @@ const Calender = ({ className }: CalendarProps) => {
                         <Button
                           color="primary"
                           className="w-100"
-                          onClick={toggleCategory}
+                          onClick={toggle}
                         >
                           <i className="mdi mdi-plus" />
                           Create New Event
@@ -344,7 +396,7 @@ const Calender = ({ className }: CalendarProps) => {
               {/* New/Edit event modal */}
               <Modal isOpen={modal} className={className}>
                 <ModalHeader toggle={toggle} tag="h5" className="py-3 px-4 border-bottom-0">
-                  {!!isEdit ? "Edit Event" : "Add Event"}
+                  {!!isEdit ? "Edit Event" : "Create Event"}
                 </ModalHeader>
                 <ModalBody className="p-4">
                   <AvForm
@@ -353,35 +405,49 @@ const Calender = ({ className }: CalendarProps) => {
                     }}
                   >
                     <Row form>
-                      <Col className="col-12 mb-3">
+                    <Col className="col-12 mb-3">
                         <AvField
-                          name="title"
-                          label="Event Name"
-                          type="text"
-                          placeholder="Insert Event Name"
-                          errorMessage="Invalid name"
+                          type="select"
+                          name="dealtype"
+                          label="Choose Deal Type"
+                          value={event ? event.dealtype : ""}
+                          errorMessage="Invalid Deal Type"
                           validate={{
                             required: { value: true },
                           }}
-                          value={(event && event.title) ? event.title : ""}
+                        >
+                          <option value="">Select Deal Type</option>
+                          <option value="Purchase">Purchase</option>
+                          <option value="Sale">Sale</option>
+                          <option value="Refinance">Refinance</option>
+                        </AvField>
+                      </Col>
+                      <Col className="col-12 mb-3">
+                        <AvField
+                          name="title"
+                          label="File Number"
+                          type="text"
+                          errorMessage="Invalid File Number"
+                          validate={{
+                            required: { value: true },
+                          }}
+                          value={
+                            event.title ? event.title : ""
+                          }
                         />
                       </Col>
                       <Col className="col-12 mb-3">
                         <AvField
-                          type="select"
-                          name="category"
-                          label="Select Category"
-                          validate={{
-                            required: { value: true },
-                          }}
-                          value={(event && event.category) ? event.category : "bg-primary"}
+                          type="date"
+                          name="start"
+                          label="Closing Date"
+                          value={event.start ? new Date(event.start).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                        }
+                        errorMessage="Invalid Closing Date"
+                        validate={{
+                          required: { value: true },
+                        }}
                         >
-                          <option value="bg-danger">Danger</option>
-                          <option value="bg-success">Success</option>
-                          <option value="bg-primary">Primary</option>
-                          <option value="bg-info">Info</option>
-                          <option value="bg-dark">Dark</option>
-                          <option value="bg-warning">Warning</option>
                         </AvField>
                       </Col>
                     </Row>
@@ -397,7 +463,7 @@ const Calender = ({ className }: CalendarProps) => {
                         </button>
                       </Col>
                       <Col xs={6} className="text-end">
-                        {!!isEdit && (
+                        {/* {!!isEdit && (
                           <button
                             type="button"
                             className="btn btn-light me-1"
@@ -405,7 +471,7 @@ const Calender = ({ className }: CalendarProps) => {
                           >
                             Delete
                           </button>
-                        )}
+                        )} */}
                         <button
                           type="submit"
                           className="btn btn-success"
@@ -424,38 +490,52 @@ const Calender = ({ className }: CalendarProps) => {
                 className={className}
               >
                 <ModalHeader toggle={toggleCategory} tag="h4">
-                  Add a category
+                  Create an Event
                 </ModalHeader>
                 <ModalBody>
                   <AvForm onValidSubmit={handleValidEventSubmitcategory}>
                     <Row form>
+                    <Col className="col-12 mb-3">
+                        <AvField
+                          type="select"
+                          name="event_category"
+                          label="Choose Deal Type"
+                          value={event ? event.dealtype : "Purchase"}
+                          errorMessage="Invalid Deal Type"
+                          validate={{
+                            required: { value: true },
+                          }}
+                        >
+                          <option value="Purchase">Purchase</option>
+                          <option value="Sale">Sale</option>
+                          <option value="Refinance">Refinance</option>
+                        </AvField>
+                      </Col>
                       <Col className="col-12 mb-3">
                         <AvField
                           name="title_category"
-                          label="Category Name"
+                          label="File Number"
                           type="text"
-                          errorMessage="Invalid name"
+                          errorMessage="Invalid File Number"
                           validate={{
                             required: { value: true },
                           }}
                           value={
-                            event.title_category ? event.title_category : ""
+                            event.title ? event.title : ""
                           }
                         />
                       </Col>
                       <Col className="col-12 mb-3">
                         <AvField
-                          type="select"
+                          type="date"
                           name="event_category"
-                          label="Choose Category Color"
-                          value={event ? event.event_category : "bg-primary"}
+                          label="Closing Date"
+                          errorMessage="Invalid Closing Date"
+                          validate={{
+                            required: { value: true },
+                          }}
+                          value={new Date()}
                         >
-                          <option value="bg-danger">Danger</option>
-                          <option value="bg-success">Success</option>
-                          <option value="bg-primary">Primary</option>
-                          <option value="bg-info">Info</option>
-                          <option value="bg-dark">Dark</option>
-                          <option value="bg-warning">Warning</option>
                         </AvField>
                       </Col>
                     </Row>

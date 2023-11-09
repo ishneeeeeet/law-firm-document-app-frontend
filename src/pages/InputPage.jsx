@@ -26,7 +26,6 @@ const InputPage = (props) => {
   const [formData, setFormdata] = useState(null)
 
   const handleFile = (event, fileType) => {
-    console.log("event = ", fileType)
     const file = event.target.files[0];
     if (fileType === "title") setTitle(file);
     if (fileType === "tax") setTax(file);
@@ -46,13 +45,13 @@ const InputPage = (props) => {
     setLoader(true)
     try {
       var formdata = new FormData();
-      formdata.append("signingMonth", month);
+      formdata.append("signing_month", month);
       if (title) formdata.append("title", title);
       if (tax) formdata.append("tax", tax);
       if (contract) formdata.append("contract", contract);
       if (letter) formdata.append("conveyancing", letter);
       if (dealType === "Purchase" && mortgage) formdata.append("mortgage", mortgage);
-      formdata.append("fileNumber", no);
+      formdata.append("file_number", no);
       formdata.append("dealtype", dealType)
       formdata.append("template", template)
       const config = {
@@ -117,7 +116,6 @@ const InputPage = (props) => {
           eventService.sendEvent(msg);
           // alert("Process is completed, downloading document!")
         } else {
-          console.log("in progress")
           if (intervalCount == timer?.intervalCount) {
             alert("Something went wrong!")
           }
@@ -204,7 +202,7 @@ const InputPage = (props) => {
                         />
                       </Col>
                     </Row>
-                    <Row className="mb-3">
+                    {dealType !== "Refinance" ? <><Row className="mb-3">
                       <Label htmlFor="formFile" className="col-md-3 col-form-label">
                         Contract<span className="text-danger">*</span>
                       </Label>
@@ -216,19 +214,19 @@ const InputPage = (props) => {
                         />
                       </Col>
                     </Row>
-                    <Row className="mb-3">
-                      <Label htmlFor="formFile" className="col-md-3 col-form-label">
-                        Conveyancing Letter<span className="text-danger">*</span>
-                      </Label>
-                      <Col md={9}>
-                        <Input className="form-control"
-                          type="file"
-                          onChange={(e) => handleFile(e, "letter")}
-                          name="letter"
-                        />
-                      </Col>
-                    </Row>
-                    {dealType === "Purchase" ? <Row className="mb-3">
+                      <Row className="mb-3">
+                        <Label htmlFor="formFile" className="col-md-3 col-form-label">
+                          Conveyancing Letter<span className="text-danger">*</span>
+                        </Label>
+                        <Col md={9}>
+                          <Input className="form-control"
+                            type="file"
+                            onChange={(e) => handleFile(e, "letter")}
+                            name="letter"
+                          />
+                        </Col>
+                      </Row> </> : <></>}
+                    {dealType !== "Sales"  ? <Row className="mb-3">
                       <Label htmlFor="formFile" className="col-md-3 col-form-label">
                         Mortgage<span className="text-danger">*</span>
                       </Label>
