@@ -50,7 +50,7 @@ const InputPage = (props) => {
       if (tax) formdata.append("tax", tax);
       if (contract) formdata.append("contract", contract);
       if (letter) formdata.append("conveyancing", letter);
-      if (dealType === "Purchase" && mortgage) formdata.append("mortgage", mortgage);
+      if (mortgage) formdata.append("mortgage", mortgage);
       formdata.append("file_number", no);
       formdata.append("dealtype", dealType)
       formdata.append("template", template)
